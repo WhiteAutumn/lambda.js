@@ -9,3 +9,5 @@ fs.writeFileSync(path.join(process.env.LAMBDAJS_AGENT_OUTPUT, "package-lock.json
 for (const dependency of Object.keys(input.packageJson.dependencies)) {
   console.log(`+ ${dependency}`);
 }
+
+console.log();
