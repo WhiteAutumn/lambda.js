@@ -2,6 +2,10 @@
   "name": "aws-lambda.js",
   "version": "0.0.0",
   "main": "dist/lambda.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WhiteAutumn/lambda.js.git"
+  },
   "scripts": {
     "build": "tsc --declaration",
     "test": "ts-mocha './{,!(node_modules)/**}/*.test.ts'",
