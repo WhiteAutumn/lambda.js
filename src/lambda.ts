@@ -10,6 +10,25 @@ interface HashMap<T> {
   [key: string]: T
 }
 
+const makeLambdaExcludes = (directory: string, sources: string[], paths: HashMap<fs.Stats>): string[] => {
+  const include = [
+    ...sources,
+    path.join(directory, "package.json")
+  ];
+
+  const exclude = Object.entries(paths)
+    .filter(([_, it]) => it.isFile())
+    .map(([path]) => path)
+    .filter(it => !include.includes(it))
+    .map(it => path.relative(directory, it))
+    .map(it => it.replace(/\\/g, '/'));
+
+  return [
+    ...exclude,
+    "node_modules"
+  ];
+};
+
 export interface FunctionProps extends lambda.FunctionOptions {
   /**
    * 
@@ -56,19 +75,9 @@ export class Function extends lambda.Function {
 
     const preparation = prepareBuild({ runtime, entry, directory, inplace });
 
-    const include = [
-      ...preparation.info.sources,
-      path.join(directory, "package.json")
-    ];      
-
     const code = lambda.Code.fromAsset(directory, {
-      exclude: (Object.entries(preparation.cache.paths as HashMap<fs.Stats>))
-        .filter(([_, it]) => it.isFile())
-        .map(([path]) => path)
-        .filter(it => !include.includes(it))
-        .map(it => path.relative(directory, it))
-        .map(it => it.replace(/\\/g, '/')),
-    });
+      exclude: makeLambdaExcludes(directory, preparation.info.sources, preparation.cache.paths)
+    })
 
     const handler = `${path.parse(entry).name}.${func}`;
 
