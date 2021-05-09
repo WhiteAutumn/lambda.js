@@ -3,6 +3,7 @@ import fs from "fs";
 
 import * as cdk from "@aws-cdk/core";
 import * as lambda from "@aws-cdk/aws-lambda";
+import * as s3_assets from '@aws-cdk/aws-s3-assets';
 
 import { prepareBuild, makeBundlingOptions } from "./build";
 
@@ -91,16 +92,27 @@ export class Function extends lambda.Function {
 
     const preparation = prepareBuild({ runtime, entry, directory, inplace });
 
-    const code = lambda.Code.fromAsset(directory, {
+    let codeOptions: s3_assets.AssetOptions = {
       exclude: makeLambdaExcludes(directory, preparation.info.sources, preparation.cache.paths)
-    })
+    };
+
+    if (entry.endsWith(".ts") || entry.endsWith(".ts/")) {
+      codeOptions = {
+        ...codeOptions,
+        bundling: makeBundlingOptions({ build: preparation.build, dependencies: preparation.dependencies }, [
+          "cp -R /asset-input/. /asset-output",
+          "cd /asset-output",
+          "tsc *.ts"
+        ])
+      };
+    }
 
     const handler = `${path.parse(entry).name}.${func}`;
 
     super(scope, id, {
       runtime,
-      code,
       handler,
+      code: lambda.Code.fromAsset(directory, codeOptions),
       ...functionProps,
     });
 

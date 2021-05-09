@@ -42,6 +42,8 @@ const makeDockerFile = (runtime: lambda.Runtime) => (`
 FROM ${runtime.bundlingImage.image}:latest
 
 COPY writeDependencies.js /lambda.js/writeDependencies.js
+
+RUN npm i -g typescript
 `);
 
 const runScriptPrepareBuild = (event: any) => {
