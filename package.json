@@ -1,6 +1,6 @@
 {
-  "name": "lambdas.js",
-  "version": "0.0.2",
+  "name": "aws-lambda.js",
+  "version": "0.0.0",
   "main": "dist/lambda.js",
   "scripts": {
     "build": "tsc --declaration",
