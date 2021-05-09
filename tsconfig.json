@@ -11,7 +11,8 @@
 
     // Compilation options
     "esModuleInterop": true,
+    "outDir": "dist",
     "typeRoots": ["./node_modules/@types"],
   },
-  "exclude": ["cdk.out"]
+  "exclude": ["cdk.out", "node_modules", "**/*.test.ts"]
 }
