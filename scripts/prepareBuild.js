@@ -27,6 +27,7 @@ const scanDependencies = async (event, packageJson, packageLock) => {
     entryPoints: [event.entry],
     bundle: true,
     sourcemap: true,
+    platform: "node",
     external: Object.keys(packageJson.dependencies),
     outfile: path.join(temp, `${temporaryName}.js`)
   };
