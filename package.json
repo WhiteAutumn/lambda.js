@@ -10,7 +10,7 @@
   "dependencies": {
     "esbuild": "^0.11.20",
     "folder-hash": "^4.0.1",
-    "package-lock-parser": "file:D:/Files/Creations/Development/Novel/package-lock-parser",
+    "package-lock-parser": "^1.0.0",
     "temp-dir": "^2.0.0",
     "uuid": "^8.3.2",
     "walkdir": "^0.4.1"
