@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "dist/lambda.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc --declaration",
     "test": "ts-mocha './{,!(node_modules)/**}/*.test.ts'",
     "test:watch": "nodemon --exec 'npm t'"
   },
