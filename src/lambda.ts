@@ -19,7 +19,7 @@ export interface FunctionProps extends lambda.FunctionOptions {
   /**
    * 
    */
-  handler: string;
+  function: string;
 
   /**
    * 
@@ -70,9 +70,12 @@ export class Function extends lambda.Function {
         .map(it => it.replace(/\\/g, '/')),
     });
 
+    const handler = `${path.parse(entry).name}.${func}`;
+
     super(scope, id, {
       runtime,
       code,
+      handler,
       ...functionProps,
     });
 
