@@ -1,3 +1,4 @@
+const os = require("os");
 const path = require("path");
 const fs = require("fs");
 const esbuild = require("esbuild");
@@ -38,8 +39,15 @@ const performEsbuild = async (event, packageJson) => {
     .then(() => fs.promises.readFile(path.join(temp, `${temporaryName}.js.map`)))
     .then(it => JSON.parse(it));
 
-  return result.sources
-    .map(it => path.resolve(it));
+
+  if (os.platform() == "win32") {
+    return result.sources
+      .map(it => path.resolve(it));
+  }
+  else {
+    return result.sources
+      .map(it => path.normalize(path.join(temp, it)));
+  }
 };
 
 const scanDependencies = async (event, packageJson, packageLock) => {
