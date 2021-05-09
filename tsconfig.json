@@ -11,6 +11,7 @@
 
     // Compilation options
     "esModuleInterop": true,
+    "sourceMap": true,
     "outDir": "dist",
     "typeRoots": ["./node_modules/@types"],
   },
