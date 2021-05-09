@@ -1,10 +1,17 @@
 {
   "name": "lambda.js",
   "version": "0.0.0",
-  "scripts": {},
+  "scripts": {
+    "test": "ts-mocha './{,!(node_modules)/**}/*.test.ts'",
+    "test:watch": "nodemon --exec 'npm t'"
+  },
   "dependencies": {
-    "depcheck": "^1.4.0",
-    "package-lock-parser": "file:d:/Files/Creations/Development/Novel/package-lock-parser"
+    "esbuild": "^0.11.20",
+    "folder-hash": "^4.0.1",
+    "package-lock-parser": "file:D:/Files/Creations/Development/Novel/package-lock-parser",
+    "temp-dir": "^2.0.0",
+    "uuid": "^8.3.2",
+    "walkdir": "^0.4.1"
   },
   "peerDependencies": {
     "@aws-cdk/aws-lambda": "~1.100.0",
@@ -12,7 +19,15 @@
   },
   "devDependencies": {
     "@aws-cdk/assert": "~1.100.0",
+    "@types/mocha": "^8.2.2",
     "@types/node": "10.17.27",
-    "aws-cdk": "~1.100.0"
+    "@types/uuid": "^8.3.0",
+    "aws-cdk": "~1.100.0",
+    "chai": "^4.3.4",
+    "cross-env": "^7.0.3",
+    "depcheck": "^1.4.0",
+    "mocha": "^8.3.2",
+    "nodemon": "^2.0.7",
+    "ts-mocha": "^8.0.0"
   }
 }
