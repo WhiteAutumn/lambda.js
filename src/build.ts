@@ -58,7 +58,7 @@ const runScriptPrepareBuild = (event: any) => {
     return JSON.parse(Buffer.from(output.toString("utf-8"), "base64").toString("utf-8"));
   }
   catch (e) {
-    console.error(output.toString("utf-8"));
+    console.log("Output: ", output.toString("utf-8"));
     throw new Error("Could not parse result from prepareBuild script!");
   }
 };
@@ -71,6 +71,7 @@ export interface BuildPreparationOptions {
 }
 
 export interface BuildPreparationResult {
+  hasDependencies: boolean;
   dependencies: {
     packageJson: any;
     packageLock: any;
@@ -119,16 +120,17 @@ export function prepareBuild(options: BuildPreparationOptions): BuildPreparation
   }
 
   return {
+    hasDependencies: scriptResult.hasDependencies,
     dependencies: {
-      packageJson: scriptResult.dependencyScan.packageJson,
-      packageLock: scriptResult.dependencyScan.packageLock,
+      packageJson: scriptResult?.dependencyScan.packageJson,
+      packageLock: scriptResult?.dependencyScan.packageLock,
     },
     build: {
       directory: temporaryDirectory,
       hash: scriptResult.buildDirHash
     },
     info: {
-      sources: scriptResult.dependencyScan.sources
+      sources: scriptResult?.dependencyScan.sources
     },
     cache
   };

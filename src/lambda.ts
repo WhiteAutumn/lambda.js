@@ -47,6 +47,7 @@ export class Function extends lambda.Function {
 
     const {
       entry,
+      function: func,
       directory = path.dirname(entry),
       inplace = false,
       runtime = lambda.Runtime.NODEJS_14_X,
@@ -55,25 +56,10 @@ export class Function extends lambda.Function {
 
     const preparation = prepareBuild({ runtime, entry, directory, inplace });
 
-    const layer = new lambda.LayerVersion(scope, `${id}Layer`, {
-      code: lambda.Code.fromAsset(directory, {
-        exclude: ["*", "!package.json", "!package-lock.json"],
-        bundling: makeBundlingOptions({ build: preparation.build, dependencies: preparation.dependencies }, [
-          "mkdir /asset-output/nodejs",
-          "node /lambda.js/writeDependencies.js",
-          "cd /asset-output/nodejs",
-          "npm ci --production > /dev/null"
-        ])
-      })
-    }); 
-
     const include = [
       ...preparation.info.sources,
       path.join(directory, "package.json")
-    ];
-
-    console.log();
-      
+    ];      
 
     const code = lambda.Code.fromAsset(directory, {
       exclude: (Object.entries(preparation.cache.paths as HashMap<fs.Stats>))
@@ -81,7 +67,7 @@ export class Function extends lambda.Function {
         .map(([path]) => path)
         .filter(it => !include.includes(it))
         .map(it => path.relative(directory, it))
-        .map(it => it.replace(/\\/g, '/'))
+        .map(it => it.replace(/\\/g, '/')),
     });
 
     super(scope, id, {
@@ -90,7 +76,21 @@ export class Function extends lambda.Function {
       ...functionProps,
     });
 
-    this.addLayers(layer);
-    this.layer = layer;
+    if (preparation.hasDependencies) {
+
+      this.layer = new lambda.LayerVersion(scope, `${id}Layer`, {
+        code: lambda.Code.fromAsset(directory, {
+          exclude: ["*", "!package.json", "!package-lock.json"],
+          bundling: makeBundlingOptions({ build: preparation.build, dependencies: preparation.dependencies }, [
+            "mkdir /asset-output/nodejs",
+            "node /lambda.js/writeDependencies.js",
+            "cd /asset-output/nodejs",
+            "npm ci --production > /dev/null"
+          ])
+        })
+      }); 
+
+      this.addLayers(this.layer);
+    }
   }
 }

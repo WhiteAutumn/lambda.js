@@ -11,16 +11,16 @@ const eventFromArgs = () => {
   return JSON.parse(Buffer.from(raw, "base64").toString("utf-8"));
 };
 
-const scanDependencies = async (event, packageJson, packageLock) => {
-
-  let depcheckRequest;
+const performDepcheck = async (event) => {
   if (event.cache.depcheck != null) {
-    depcheckRequest = Promise.resolve(event.cache.depcheck);
+    return Promise.resolve(event.cache.depcheck);
   }
   else {
-    depcheckRequest = require("depcheck")(event.sourceDirectory, {})
+    return require("depcheck")(event.sourceDirectory, {})
   }
+};
 
+const performEsbuild = async (event, packageJson) => {
   const temporaryName = uuid();
 
   const esbuildParams = {
@@ -28,26 +28,29 @@ const scanDependencies = async (event, packageJson, packageLock) => {
     bundle: true,
     sourcemap: true,
     platform: "node",
-    external: Object.keys(packageJson.dependencies),
+    external: packageJson ? Object.keys(packageJson.dependencies) : [],
     outfile: path.join(temp, `${temporaryName}.js`)
   };
 
-  const esbuildRequest = esbuild.build(esbuildParams)
+  const result = await esbuild.build(esbuildParams)
     .then(() => fs.promises.readFile(path.join(temp, `${temporaryName}.js.map`)))
     .then(it => JSON.parse(it));
 
-  const [esbuildResult, depcheckResult] = await Promise.all([
-    esbuildRequest,
-    depcheckRequest
-  ]);
-
-  const sources = esbuildResult.sources
+  return result.sources
     .map(it => path.resolve(it));
+};
+
+const scanDependencies = async (event, packageJson, packageLock) => {
+
+  const [depcheckResult, esbuildResult] = await Promise.all([
+    performDepcheck(event),
+    performEsbuild(event, packageJson)
+  ]);
 
   const used = {};
   for (const [dependency, files] of Object.entries(depcheckResult.using)) {
     for (const file of files) {
-      if (sources.includes(file)) {
+      if (esbuildResult.includes(file)) {
         used[dependency] = true;
       }
     }
@@ -71,7 +74,7 @@ const scanDependencies = async (event, packageJson, packageLock) => {
   return {
     packageJson: packageJson,
     packageLock: fabricatedPackageLock,
-    sources,
+    sources: esbuildResult,
     cache: {
       depcheck: depcheckResult
     }
@@ -105,7 +108,24 @@ const makeBuildDir = async (event) => {
 
   ]);
 
+  if (packageJson && !packageLock) {
+    console.log("WARN! Found package.json but not package-lock.json, will to install dependencies!");
+  }
+
+  if (packageLock && !packageJson) {
+    console.log("WARN! Found package-lock.json but not package.json, will not install dependencies!");
+  }
+
   if (!packageJson || !packageLock) {
+
+    console.log(
+      Buffer.from(
+        JSON.stringify({
+          hasDependencies: false,
+          dependencyScan: { sources: await performEsbuild(event, packageJson) }
+        })
+      ).toString("base64")
+    );
     return;
   }
 
@@ -116,7 +136,7 @@ const makeBuildDir = async (event) => {
 
   console.log(
     Buffer.from(
-      JSON.stringify({ dependencyScan, buildDirHash })
+      JSON.stringify({ hasDependencies: true, dependencyScan, buildDirHash })
     ).toString("base64")
   );
 
