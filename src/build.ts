@@ -53,7 +53,7 @@ const runScriptPrepareBuild = (event: any) => {
   ).toString("base64");
 
   const output = exec(
-    `${process.execPath} ${path.join(scriptsPath ,"prepareBuild.js")} ${eventEncoded}
+    `"${process.execPath}" "${path.join(scriptsPath ,"prepareBuild.js")}" ${eventEncoded}
   `);
 
   try {
