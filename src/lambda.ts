@@ -16,10 +16,26 @@ const makeLambdaExcludes = (directory: string, sources: string[], paths: HashMap
     path.join(directory, "package.json")
   ];
 
-  const exclude = Object.entries(paths)
-    .filter(([_, it]) => it.isFile())
-    .map(([path]) => path)
-    .filter(it => !include.includes(it))
+  const files = Object.entries(paths);
+  let exclude: string[] = [];
+  for (const [name, entry] of files) {
+    if (entry.isFile()) {
+      if (!include.includes(name)) {
+        exclude.push(name);
+      }
+    }
+    else {
+      const containsNothing = files
+        .filter(([it]) => it.startsWith(name))
+        .every(([it]) => !include.includes(it));
+      
+      if (containsNothing) {
+        exclude.push(name);
+      }
+    }
+  }
+
+  exclude = exclude
     .map(it => path.relative(directory, it))
     .map(it => it.replace(/\\/g, '/'));
 
