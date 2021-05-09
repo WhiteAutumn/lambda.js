@@ -16,19 +16,21 @@ const performDepcheck = async (event) => {
     return Promise.resolve(event.cache.depcheck);
   }
   else {
-    return require("depcheck")(event.sourceDirectory, {})
+    return require("depcheck")(event.sourceDirectory, {});
   }
 };
 
 const performEsbuild = async (event, packageJson) => {
   const temporaryName = uuid();
 
+  const externals = packageJson ? Object.keys(packageJson.dependencies) : [];
+
   const esbuildParams = {
     entryPoints: [event.entry],
     bundle: true,
     sourcemap: true,
     platform: "node",
-    external: packageJson ? Object.keys(packageJson.dependencies) : [],
+    external: [...externals, "aws-sdk"],
     outfile: path.join(temp, `${temporaryName}.js`)
   };
 
