@@ -109,7 +109,10 @@ export function prepareBuild(options: BuildPreparationOptions): BuildPreparation
   if (cache == null) {
     runtimeCache[options.directory] = {
       ...scriptResult.cache,
-      paths: walk.sync(options.directory, { return_object: true })
+      paths: walk.sync(options.directory, {
+        return_object: true,
+        filter: (_, files) => files.filter(it => it != "node_modules") 
+      })
     };
 
     cache = runtimeCache[options.directory];
