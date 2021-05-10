@@ -107,7 +107,12 @@ export class Function extends lambda.Function {
       };
     }
 
-    const handler = `${path.parse(entry).name}.${func}`;
+    const lambdaFilePath = path.join(
+        path.relative(directory, path.dirname(entry)),
+        path.parse(entry).name
+    ).replace(/\\/g, '/');
+
+    const handler = `${lambdaFilePath}.${func}`;
 
     super(scope, id, {
       runtime,
