@@ -106,7 +106,9 @@ export function prepareBuild(options: BuildPreparationOptions): BuildPreparation
       dockerfile,
       script: fs.readFileSync(path.normalize(path.join(__dirname, "..", "scripts", "writeDependencies.js"))).toString("utf-8")
     },
-    cache: cache ?? {},
+    cache: {
+      depcheck: cache?.depcheck
+    },
   });
 
   if (cache == null) {
