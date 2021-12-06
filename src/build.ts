@@ -38,11 +38,12 @@ const makeBuildDirectory = () => {
   return dir;
 };
 
-const makeDockerFile = (runtime: lambda.Runtime) => (`
+const makeDockerFile = (runtime: lambda.Runtime, useNpm7: boolean = false) => (`
 FROM ${runtime.bundlingImage.image}:latest
 
 COPY writeDependencies.js /lambda.js/writeDependencies.js
 
+${useNpm7 ? "RUN npm i -g npm@^7" : ""}
 RUN npm i -g typescript
 `);
 
@@ -70,6 +71,7 @@ export interface BuildPreparationOptions {
   entry: string;
   directory: string;
   inplace: boolean;
+  _bundleUsingNpm7?: boolean;
 }
 
 export interface BuildPreparationResult {
@@ -91,7 +93,7 @@ export interface BuildPreparationResult {
 export function prepareBuild(options: BuildPreparationOptions): BuildPreparationResult {
 
   const temporaryDirectory = makeBuildDirectory();
-  const dockerfile = makeDockerFile(options.runtime);
+  const dockerfile = makeDockerFile(options.runtime, options._bundleUsingNpm7);
 
   let cache;
   if (runtimeCache[options.directory] != null) {

@@ -1,6 +1,6 @@
 {
   "name": "aws-lambda.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/lambda.js",
   "repository": {
     "type": "git",

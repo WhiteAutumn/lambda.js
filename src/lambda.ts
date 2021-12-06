@@ -71,6 +71,8 @@ export interface FunctionProps extends lambda.FunctionOptions {
    * 
    */
   runtime?: lambda.Runtime;
+
+  _bundleUsingNpm7?: boolean;
 }
 
 export class Function extends lambda.Function {
@@ -90,7 +92,7 @@ export class Function extends lambda.Function {
       ...functionProps
     } = props;
 
-    const preparation = prepareBuild({ runtime, entry, directory, inplace });
+    const preparation = prepareBuild({ runtime, entry, directory, inplace, _bundleUsingNpm7: props._bundleUsingNpm7 });
 
     let codeOptions: s3_assets.AssetOptions = {
       exclude: makeLambdaExcludes(directory, preparation.info.sources, preparation.cache.paths)
