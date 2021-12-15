@@ -128,6 +128,7 @@ export class Function extends lambda.Function {
       this.layer = new lambda.LayerVersion(scope, `${id}Layer`, {
         code: lambda.Code.fromAsset(directory, {
           exclude: ["*", "!package.json", "!package-lock.json"],
+          assetHashType: cdk.AssetHashType.SOURCE,
           bundling: makeBundlingOptions({ build: preparation.build, dependencies: preparation.dependencies }, [
             "mkdir /asset-output/nodejs",
             "node /lambda.js/writeDependencies.js",
