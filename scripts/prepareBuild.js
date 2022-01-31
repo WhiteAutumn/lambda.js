@@ -146,7 +146,10 @@ const makeBuildDir = async (event) => {
 
   console.log(
     Buffer.from(
-      JSON.stringify({ hasDependencies: true, dependencyScan, buildDirHash })
+      JSON.stringify({
+        hasDependencies: Object.keys(packageJson.dependencies).length > 0,
+        dependencyScan, buildDirHash
+      })
     ).toString("base64")
   );
 
