@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "axios": "^0.21.1",
-    "exceptions-with-cause": "^1.0.0",
-    "phin": "^3.5.1"
-  }
-}
